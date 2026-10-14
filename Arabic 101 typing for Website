@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Arabic 101 — Arabic typing test</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef3f4; --panel:#e0e9eb; --ink:#13303a; --dim:#8aa0a6; --accent:#c9811a;
+  --ok:#13303a; --bad:#d4452f; --key:#fff; --keyline:#c5d4d7;
+  --serif:'Amiri','Noto Naskh Arabic','Traditional Arabic',serif;
+  --sans:'Tajawal','Segoe UI',system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){--bg:#0f1e26;--panel:#162a35;--ink:#e9f0f1;--dim:#5f7983;--accent:#f0b44c;--ok:#e9f0f1;--bad:#ff7a63;--key:#1b3340;--keyline:#27434f}
+}
+:root[data-theme="dark"]{--bg:#0f1e26;--panel:#162a35;--ink:#e9f0f1;--dim:#5f7983;--accent:#f0b44c;--ok:#e9f0f1;--bad:#ff7a63;--key:#1b3340;--keyline:#27434f}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);display:flex;flex-direction:column;align-items:center;padding:0 20px;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+.wrap{width:100%;max-width:980px;flex:1;display:flex;flex-direction:column}
+header{display:flex;justify-content:space-between;align-items:center;padding:28px 0 8px}
+.logo{display:flex;align-items:baseline;gap:14px}
+.logo b{font-size:26px;font-weight:700;letter-spacing:-.5px}
+.logo span{font-family:var(--serif);font-size:28px;color:var(--accent)}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:8px}
+.icons{display:flex;gap:6px}
+.icon{padding:8px 12px;border-radius:10px;color:var(--dim);font-size:14px}
+.icon:hover,.icon[aria-pressed="true"]{color:var(--ink);background:var(--panel)}
+.bar{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin:30px 0 10px}
+.group{display:flex;background:var(--panel);border-radius:12px;padding:4px}
+.group button{padding:7px 14px;border-radius:9px;color:var(--dim);font-size:15px}
+.group button:hover{color:var(--ink)}
+.group button.on{background:var(--bg);color:var(--accent);font-weight:700}
+.live{height:54px;display:flex;align-items:center;justify-content:center;gap:28px;font-size:34px;font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums}
+.live small{font-size:15px;font-weight:500;color:var(--dim);margin-inline-start:6px}
+#stage{position:relative;cursor:text;outline:none}
+#view{height:calc(var(--lh)*3);overflow:hidden;--lh:84px;direction:rtl;font-family:var(--serif);font-size:48px;line-height:var(--lh);text-align:right}
+#words{position:relative;display:flex;flex-wrap:wrap;gap:0 .55em;transition:transform .12s ease}
+.word{display:inline-block;color:var(--dim)}
+.word.bad{text-decoration:underline;text-decoration-color:var(--bad);text-decoration-thickness:2px;text-underline-offset:10px}
+.l.ok{color:var(--ok)} .l.no{color:var(--bad)} .l.ex{color:var(--bad);opacity:.7}
+#caret{position:absolute;width:3px;background:var(--accent);border-radius:2px;transition:left .09s,top .09s;animation:blink 1s steps(2) infinite;pointer-events:none}
+#stage.typing #caret{animation:none}
+#stage.blur #view{filter:blur(6px);opacity:.5}
+#focusMsg{position:absolute;inset:0;display:none;align-items:center;justify-content:center;color:var(--ink);font-size:18px}
+#stage.blur #focusMsg{display:flex}
+@keyframes blink{50%{opacity:0}}
+#warn{display:none;margin:10px auto 0;padding:10px 16px;border-radius:10px;background:var(--bad);color:#fff;font-size:15px;text-align:center}
+.hint{text-align:center;color:var(--dim);font-size:14px;margin-top:22px}
+kbd{font-family:var(--sans);background:var(--panel);padding:2px 8px;border-radius:6px;font-size:13px;color:var(--ink)}
+#kb{margin:34px auto 0;direction:ltr;display:flex;flex-direction:column;gap:6px;align-items:center}
+#kb.off{display:none}
+.row{display:flex;gap:6px}
+.row:nth-child(2){margin-left:22px}.row:nth-child(3){margin-left:50px}
+.k{width:52px;height:52px;display:flex;align-items:center;justify-content:center;background:var(--key);border:1px solid var(--keyline);border-bottom-width:3px;border-radius:10px;font-family:var(--serif);font-size:25px;transition:background .1s,transform .1s}
+.k.space{width:300px;font-family:var(--sans);font-size:13px;color:var(--dim)}
+.k.next{background:var(--accent);border-color:var(--accent);color:#13303a;transform:translateY(-2px)}
+.k.hit{transform:translateY(2px);border-bottom-width:1px}
+#res{display:none;text-align:center;padding-top:20px}
+#res .big{font-size:96px;font-weight:700;color:var(--accent);line-height:1;font-variant-numeric:tabular-nums}
+#res .lab{color:var(--dim);font-size:15px;margin-top:6px}
+.grid{display:flex;justify-content:center;gap:42px;margin:34px 0;flex-wrap:wrap}
+.grid div b{display:block;font-size:34px}
+.again{background:var(--panel);padding:12px 26px;border-radius:12px;font-weight:700}
+.again:hover{background:var(--accent);color:#13303a}
+footer{padding:26px 0;text-align:center;color:var(--dim);font-size:13px}
+@media (max-width:700px){
+  #view{--lh:64px;font-size:36px}
+  .k{width:7.8vw;height:9vw;font-size:18px}.k.space{width:50vw}
+  .row{gap:4px}.row:nth-child(2){margin-left:2vw}.row:nth-child(3){margin-left:5vw}
+  .live{font-size:28px}
+}
+@media (prefers-reduced-motion:reduce){#caret{animation:none}#words,.k{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo"><b>Arabic 101</b><span>عربي ١٠١</span></div>
+    <div class="icons">
+      <button class="icon" id="kbBtn" aria-pressed="true">Keyboard guide</button>
+      <button class="icon" id="themeBtn">Theme</button>
+    </div>
+  </header>
+
+  <div id="test">
+    <div class="bar">
+      <div class="group" id="modes"><button data-m="time" class="on">Time</button><button data-m="words">Words</button></div>
+      <div class="group" id="vals"></div>
+    </div>
+    <div class="live"><div id="clock">30</div><div id="lwpm" style="display:none"><span id="lw">0</span><small>wpm</small></div></div>
+    <div id="stage" tabindex="0" class="blur">
+      <div id="view"><div id="words"><div id="caret"></div></div></div>
+      <div id="focusMsg">Click here or press any key to start</div>
+    </div>
+    <div id="warn">Your keyboard is set to English. Switch to Arabic with <b>Alt + Shift</b> or <b>Win + Space</b>.</div>
+    <div class="hint"><kbd>Tab</kbd> restart · <kbd>Space</kbd> next word · <kbd>Backspace</kbd> fix a letter</div>
+    <div id="kb"></div>
+  </div>
+
+  <div id="res">
+    <div class="big" id="rWpm">0</div><div class="lab">words per minute</div>
+    <div class="grid">
+      <div><b id="rAcc">0%</b><span class="lab">accuracy</span></div>
+      <div><b id="rRaw">0</b><span class="lab">raw speed</span></div>
+      <div><b id="rChars">0</b><span class="lab">correct / wrong / extra</span></div>
+      <div><b id="rTime">0s</b><span class="lab">time</span></div>
+      <div><b id="rBest">0</b><span class="lab">your best</span></div>
+    </div>
+    <button class="again" id="again">Try again</button>
+    <div class="hint"><kbd>Tab</kbd> or <kbd>Enter</kbd> to restart</div>
+  </div>
+</div>
+<footer>Arabic 101 is the standard Arabic keyboard layout. Add it in your system settings to practise.</footer>
+
+<script>
+const WORDS="في من على إلى عن مع هذا هذه ذلك التي الذي كان قال كل بعد قبل بين حتى أن لا نعم ما ماذا كيف أين متى لماذا هل أنا أنت هو هي نحن هم كتاب قلم مدرسة جامعة طالب معلم بيت باب شمس قمر سماء ماء نهر بحر جبل شجرة زهرة طريق مدينة قرية سوق يوم ليل صباح مساء سنة شهر أسبوع وقت علم لغة كلمة جملة حرف صوت قراءة كتابة حديث سؤال جواب صديق عائلة أب أم أخ أخت ولد بنت رجل امرأة طفل حياة عمل مال حب سلام أمل حلم فكرة عقل قلب عين يد رأس طعام خبز حليب قهوة شاي تمر عسل كبير صغير جديد قديم جميل سريع بطيء قريب بعيد سهل صعب".split(" ");
+const ROWS=[["ض","ص","ث","ق","ف","غ","ع","ه","خ","ح","ج","د"],["ش","س","ي","ب","ل","ا","ت","ن","م","ك","ط"],["ئ","ء","ؤ","ر","لا","ى","ة","و","ز","ظ"]];
+const ALT={"أ":"ا","إ":"ا","آ":"ا"};
+const OPTS={time:[15,30,60,120],words:[10,25,50,100]};
+const $=id=>document.getElementById(id);
+const view=$("view"),wordsEl=$("words"),caret=$("caret"),stage=$("stage");
+let mode="time",val=30,words=[],typed=[],wi=0,started=false,done=false,t0=0,tick=null;
+let okKeys=0,badKeys=0,rawKeys=0;
+
+function store(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){return null}}
+
+// ---------- setup ----------
+function rand(n){const a=[];let last="";while(a.length<n){const w=WORDS[Math.random()*WORDS.length|0];if(w!==last){a.push(w);last=w}}return a}
+function buildOpts(){
+  $("vals").innerHTML=OPTS[mode].map(v=>`<button data-v="${v}" class="${v===val?"on":""}">${v}</button>`).join("");
+}
+function restart(){
+  clearInterval(tick);started=done=false;wi=0;typed=[];okKeys=badKeys=rawKeys=0;
+  words=rand(mode==="time"?120:val);typed=words.map(()=>"");
+  wordsEl.querySelectorAll(".word").forEach(n=>n.remove());
+  words.forEach((w,i)=>wordsEl.appendChild(mkWord(i)));
+  wordsEl.style.transform="translateY(0)";
+  $("res").style.display="none";$("test").style.display="";
+  $("lwpm").style.display="none";
+  $("clock").textContent=mode==="time"?val:"0/"+val;
+  stage.classList.remove("typing");
+  paint();stage.focus({preventScroll:true});
+}
+function mkWord(i){const d=document.createElement("div");d.className="word";d.dataset.i=i;fill(d,i);return d}
+function fill(d,i){
+  const w=words[i],t=typed[i];let h="";
+  for(let c=0;c<w.length;c++){
+    const cls=c<t.length?(t[c]===w[c]?"ok":"no"):"";
+    h+=`<span class="l ${cls}">${w[c]}</span>`;
+  }
+  for(let c=w.length;c<t.length;c++)h+=`<span class="l ex">${t[c]}</span>`;
+  d.innerHTML=h;
+  d.classList.toggle("bad",i<wi&&t!==w);
+}
+function wordEl(i){return wordsEl.querySelector(`.word[data-i="${i}"]`)}
+
+// ---------- render ----------
+function paint(){
+  const el=wordEl(wi);if(!el)return;
+  fill(el,wi);
+  if(wi>0){const p=wordEl(wi-1);if(p)fill(p,wi-1)}
+  // line scrolling: keep current word on the 2nd line
+  const lh=parseFloat(getComputedStyle(view).getPropertyValue("--lh"));
+  wordsEl.style.transform=`translateY(${-Math.max(0,el.offsetTop-lh)}px)`;
+  // caret at the start (right edge in RTL) of the next letter
+  const L=el.children,i=typed[wi].length,wr=wordsEl.getBoundingClientRect();
+  let x,r;
+  if(i<L.length){r=L[i].getBoundingClientRect();x=r.right}
+  else{r=L[L.length-1].getBoundingClientRect();x=r.left}
+  const lhPx=r.height*.8;
+  caret.style.height=lhPx+"px";
+  caret.style.left=(x-wr.left-1)+"px";
+  caret.style.top=(r.top-wr.top+r.height*.12)+"px";
+  guide();
+}
+function guide(){
+  document.querySelectorAll(".k.next").forEach(k=>k.classList.remove("next"));
+  if(done||!words[wi])return;
+  const w=words[wi],i=typed[wi].length;
+  let c=i<w.length?w[i]:" ";
+  c=ALT[c]||c;
+  const k=document.querySelector(`.k[data-c="${c}"]`);
+  if(k)k.classList.add("next");
+}
+function buildKb(){
+  const kb=$("kb");
+  kb.innerHTML=ROWS.map(r=>`<div class="row">${r.map(c=>`<div class="k" data-c="${c}">${c}</div>`).join("")}</div>`).join("")
+    +`<div class="row"><div class="k space" data-c=" ">space</div></div>`;
+}
+function flash(c){
+  const k=document.querySelector(`.k[data-c="${ALT[c]||c}"]`);
+  if(!k)return;k.classList.add("hit");setTimeout(()=>k.classList.remove("hit"),90);
+}
+
+// ---------- typing ----------
+function start(){
+  started=true;t0=performance.now();stage.classList.add("typing");
+  if(mode==="time"){$("lwpm").style.display="";}
+  tick=setInterval(()=>{
+    const s=(performance.now()-t0)/1000;
+    if(mode==="time"){
+      const left=Math.max(0,val-s);$("clock").textContent=Math.ceil(left);
+      if(left<=0)finish();
+    }
+    $("lw").textContent=Math.round(stats(s).wpm);
+  },200);
+}
+function stats(sec){
+  let good=0;
+  for(let i=0;i<=wi&&i<words.length;i++){
+    const w=words[i],t=typed[i];
+    if(i<wi){if(t===w)good+=w.length+1}
+    else for(let c=0;c<t.length&&c<w.length;c++)if(t[c]===w[c])good++;
+  }
+  const m=Math.max(sec,1)/60;
+  return{wpm:good/5/m,raw:rawKeys/5/m};
+}
+function addChar(ch){
+  if(done)return;
+  if(!started)start();
+  const w=words[wi],t=typed[wi];
+  if(t.length>=w.length+8)return;
+  rawKeys++;
+  (ch===w[t.length]?okKeys++:badKeys++);
+  typed[wi]=t+ch;flash(ch);
+  if(mode==="words"&&wi===words.length-1&&typed[wi]===w){wi++;return finish()}
+  paint();
+}
+function nextWord(){
+  if(done||!started||!typed[wi])return;
+  flash(" ");
+  if(mode==="words"){$("clock").textContent=(wi+1)+"/"+val}
+  wi++;
+  if(wi>=words.length){
+    if(mode==="time"){const add=rand(60);add.forEach(w=>{words.push(w);typed.push("");wordsEl.appendChild(mkWord(words.length-1))})}
+    else return finish();
+  }
+  paint();
+}
+function back(){
+  if(done||!started)return;
+  const t=typed[wi];if(t.length)typed[wi]=t.slice(0,-1);
+  paint();
+}
+
+// ---------- results ----------
+function finish(){
+  if(done)return;done=true;clearInterval(tick);
+  const sec=mode==="time"?Math.min(val,(performance.now()-t0)/1000):(performance.now()-t0)/1000;
+  const s=stats(sec);
+  let ok=0,no=0,ex=0;
+  for(let i=0;i<=wi&&i<words.length;i++){
+    const w=words[i],t=typed[i];
+    for(let c=0;c<t.length;c++){if(c>=w.length)ex++;else if(t[c]===w[c])ok++;else no++}
+  }
+  const acc=rawKeys?okKeys/(okKeys+badKeys)*100:0;
+  const key="a101-"+mode+val,best=Math.max(+store(key)||0,Math.round(s.wpm));
+  store(key,String(best));
+  $("rWpm").textContent=Math.round(s.wpm);
+  $("rAcc").textContent=Math.round(acc)+"%";
+  $("rRaw").textContent=Math.round(s.raw);
+  $("rChars").textContent=ok+" / "+no+" / "+ex;
+  $("rTime").textContent=Math.round(sec)+"s";
+  $("rBest").textContent=best;
+  $("test").style.display="none";$("res").style.display="block";
+  document.querySelectorAll(".k.next").forEach(k=>k.classList.remove("next"));
+  $("again").focus();
+}
+
+// ---------- events ----------
+document.addEventListener("keydown",e=>{
+  if(e.ctrlKey||e.metaKey||e.altKey)return;
+  if(e.key==="Tab"||(e.key==="Enter"&&done)){e.preventDefault();return restart()}
+  if(done)return;
+  if(e.key==="Escape"){return restart()}
+  stage.classList.remove("blur");
+  if(e.key==="Backspace"){e.preventDefault();return back()}
+  if(e.key===" "){e.preventDefault();return nextWord()}
+  if(/^[A-Za-z]$/.test(e.key)){$("warn").style.display="block";return}
+  if(/[\u0600-\u06FF]/.test(e.key)){
+    $("warn").style.display="none";e.preventDefault();
+    for(const ch of e.key)if(/[\u0600-\u06FF]/.test(ch))addChar(ch);
+  }
+});
+stage.addEventListener("click",()=>{stage.classList.remove("blur");stage.focus()});
+stage.addEventListener("blur",()=>{if(!done)stage.classList.add("blur")});
+$("modes").addEventListener("click",e=>{
+  const m=e.target.dataset.m;if(!m)return;
+  mode=m;val=OPTS[m][1];
+  document.querySelectorAll("#modes button").forEach(b=>b.classList.toggle("on",b.dataset.m===m));
+  buildOpts();restart();
+});
+$("vals").addEventListener("click",e=>{
+  const v=e.target.dataset.v;if(!v)return;val=+v;buildOpts();restart();
+});
+$("again").addEventListener("click",restart);
+$("kbBtn").addEventListener("click",()=>{
+  const off=$("kb").classList.toggle("off");
+  $("kbBtn").setAttribute("aria-pressed",String(!off));store("a101-kb",off?"0":"1");
+});
+$("themeBtn").addEventListener("click",()=>{
+  const cur=document.documentElement.dataset.theme||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");
+  const n=cur==="dark"?"light":"dark";
+  document.documentElement.dataset.theme=n;store("a101-theme",n);paint();
+});
+window.addEventListener("resize",()=>{if(!done)paint()});
+
+// ---------- init ----------
+const th=store("a101-theme");if(th)document.documentElement.dataset.theme=th;
+buildKb();
+if(store("a101-kb")==="0"){$("kb").classList.add("off");$("kbBtn").setAttribute("aria-pressed","false")}
+buildOpts();
+(document.fonts&&document.fonts.ready?document.fonts.ready:Promise.resolve()).then(restart);
+restart();
+</script>
+</body>
+</html>
